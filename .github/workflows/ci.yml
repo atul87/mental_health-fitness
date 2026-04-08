@@ -1,22 +1,35 @@
-name: SoulCare CI Pipeline
+name: SoulCare CI
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main, master, develop]
   pull_request:
-    branches: [main]
+    branches: [main, master]
+
+concurrency:
+  group: soulcare-ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  # ─── Backend Tests ───────────────────────────────────────────────
   backend:
-    name: 🧪 Backend Tests
+    name: Backend Test + Coverage
     runs-on: ubuntu-latest
+
+    services:
+      mongo:
+        image: mongo:7
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd="mongosh --eval 'db.adminCommand({ ping: 1 })'"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
 
     env:
       PORT: 3003
-      MONGODB_URI: ${{ secrets.MONGODB_URI }}
-      JWT_SECRET: ${{ secrets.JWT_SECRET }}
-      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      MONGODB_URI: mongodb://127.0.0.1:27017/soulcare_ci
+      JWT_SECRET: ci_jwt_secret_for_tests
       FRONTEND_URL: http://localhost:5173
 
     steps:
@@ -27,17 +40,25 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
+          cache: npm
 
-      - name: Install dependencies
-        run: npm install
+      - name: Install backend dependencies
+        run: npm ci
 
       - name: Run backend tests
-        run: npm test
+        run: npm run test:backend
 
-  # ─── Frontend Tests + Build ─────────────────────────────────────
+      - name: Run backend coverage
+        run: npm run coverage:backend
+
+      - name: Upload backend coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-coverage
+          path: coverage/backend
+
   frontend:
-    name: ⚡ Frontend Tests & Build
+    name: Frontend Test + Lint + Build
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -54,20 +75,26 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
+          cache: npm
           cache-dependency-path: Mental-health/package-lock.json
 
-      - name: Install dependencies
-        run: npm install
+      - name: Install frontend dependencies
+        run: npm ci
 
       - name: Run frontend tests
         run: npm test
 
-      - name: Run coverage report
+      - name: Run frontend coverage
         run: npm run coverage
 
-      - name: Lint check
+      - name: Run lint
         run: npm run lint
 
       - name: Build frontend
         run: npm run build
+
+      - name: Upload frontend coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-coverage
+          path: Mental-health/coverage

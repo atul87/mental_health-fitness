@@ -1,17 +1,19 @@
 # SoulCare AI
 
-SoulCare is a full-stack mental wellness application built with React, Vite, Express, and MongoDB. It includes authenticated journaling, mood analysis, guided exercises, and an AI chat experience with offline fallback when Gemini is unavailable.
+SoulCare is a full-stack mental wellness application built with React, Vite, Express, and MongoDB. The current codebase includes authenticated journaling, mood analysis, guided exercises, and an AI chat experience with graceful offline fallback when Gemini is unavailable.
 
-## What Works
+## Current Capabilities
 
 - JWT-based authentication with protected backend routes
-- Private journal CRUD for the signed-in user
-- Mood analysis and mood history tracking
-- Guided exercise logging with a working session timer
-- AI chat history with backend persistence and offline fallback
-- Anonymous session support
+- Anonymous access flow for low-friction onboarding
+- Private journal create, read, update, and delete flows
+- Mood analysis, mood history, and mood insights
+- Guided exercise sessions with a working timer and completion logging
+- AI chat history with backend persistence and browser voice features where supported
+- Frontend and backend automated test coverage
+- GitHub Actions CI for tests, coverage, lint, and production build validation
 
-## Stack
+## Tech Stack
 
 Frontend:
 - React
@@ -20,6 +22,9 @@ Frontend:
 - Framer Motion
 - Chart.js
 - React Three Fiber
+- Vitest
+- React Testing Library
+- MSW
 
 Backend:
 - Node.js
@@ -27,18 +32,29 @@ Backend:
 - MongoDB with Mongoose
 - JWT and bcrypt
 - Google Gemini SDK
-- Jest and Supertest
+- Jest
+- Supertest
+
+## Repository Layout
+
+- `server.js` - Express app bootstrap and middleware setup
+- `routes/` - API route modules
+- `models/` - Mongoose models and data helpers
+- `middleware/` - shared backend middleware
+- `tests/` - backend integration tests
+- `Mental-health/` - Vite + React frontend
+- `.github/workflows/ci.yml` - CI pipeline
 
 ## Local Setup
 
-### 1. Backend
+### Backend
 
 ```bash
 npm install
 copy .env.example .env
 ```
 
-Update `.env` with your values:
+Configure `.env`:
 
 ```env
 PORT=3003
@@ -48,13 +64,13 @@ GEMINI_API_KEY=your_google_ai_studio_key
 FRONTEND_URL=http://localhost:5173
 ```
 
-Start the API:
+Start the backend:
 
 ```bash
 npm run dev
 ```
 
-### 2. Frontend
+### Frontend
 
 ```bash
 cd Mental-health
@@ -63,82 +79,89 @@ copy .env.example .env
 npm run dev
 ```
 
-The frontend expects the backend at `http://localhost:3003` by default.
+Frontend `.env`:
+
+```env
+VITE_API_URL=http://localhost:3003
+```
 
 ## Scripts
 
-Backend:
-- `npm run dev` — start with nodemon
-- `npm start` — production start
-- `npm test` — run backend tests (Jest + Supertest)
+Root:
+- `npm run dev` - start backend with nodemon
+- `npm start` - start backend in production mode
+- `npm test` - run backend tests
+- `npm run coverage:backend` - generate backend coverage
+- `npm run test:frontend` - run frontend tests from root
+- `npm run lint:frontend` - run frontend lint from root
+- `npm run build:frontend` - build frontend from root
+- `npm run coverage:frontend` - generate frontend coverage from root
+- `npm run ci:check` - backend tests, frontend tests, lint, and build
 
 Frontend:
-- `npm run dev` — Vite dev server
-- `npm run build` — production bundle
-- `npm run lint` — ESLint check
-- `npm test` — run frontend tests (Vitest)
-- `npm run coverage` — generate test coverage report
-- `npm run test:ui` — open Vitest interactive UI
+- `npm run dev` - start Vite dev server
+- `npm test` - run Vitest once
+- `npm run coverage` - run Vitest with coverage
+- `npm run lint` - run ESLint
+- `npm run build` - create production bundle
 
-## 🧪 Testing
+## Testing
 
-This project has full-stack testing coverage across both backend and frontend.
+### Backend
 
-### Backend — Jest + Supertest
+Backend tests use Jest + Supertest against the Express app directly.
 
-Tests cover authenticated REST API routes using a real MongoDB connection.
+Covered flows:
+- registration
+- login
+- authenticated journal create
+- authenticated journal update
+- authenticated journal fetch
+
+Run:
 
 ```bash
 npm test
+npm run coverage:backend
 ```
 
-### Frontend — Vitest + React Testing Library + MSW
+### Frontend
 
-Tests cover UI components with real API simulation via Mock Service Worker (MSW). No real backend needed.
+Frontend tests use Vitest + React Testing Library + MSW. API calls are intercepted at the network layer, so component behavior is tested without a live backend.
+
+Covered components:
+- `Login`
+- `Journal`
+- `Chatbot`
+- `MoodTracker`
+- `Exercises`
+- `Profile`
+
+Run:
 
 ```bash
 cd Mental-health
-npm test          # run all tests once
-npm run coverage  # run with coverage report
-npm run test:ui   # open interactive test UI
+npm test
+npm run coverage
 ```
 
-**What's tested:**
+## CI
 
-| Test File | What it covers |
-|---|---|
-| `Login.test.jsx` | Login form render, submit flow, error state on bad credentials |
-| `Journal.test.jsx` | Empty state, journal entry creation via UI |
-| `Chatbot.test.jsx` | Online mode reply, offline mode fallback on API failure |
+GitHub Actions is configured in `.github/workflows/ci.yml`.
 
-**Testing architecture:**
+The pipeline runs on push and pull request for the main working branches and performs:
+- backend tests
+- backend coverage
+- frontend tests
+- frontend coverage
+- frontend lint
+- frontend production build
 
-- `vi.mock` for Three.js Canvas (WebGL unsupported in jsdom)
-- MSW intercepts all `fetch` calls at the network level — no function mocking
-- `AuthContext` injected with a mock user for isolated renders
-- jsdom patched with `scrollIntoView` stub
+The backend CI job uses a MongoDB service container, so no external MongoDB secret is required for test execution.
 
-### CI/CD — GitHub Actions
+## Product Notes
 
-Every push to `main` or `develop` automatically:
-
-1. Runs backend tests (Jest)
-2. Runs frontend tests (Vitest)
-3. Generates coverage report
-4. Runs linting
-5. Builds the frontend bundle
-
-Add these secrets to your GitHub repo (`Settings → Secrets → Actions`):
-
-| Secret | Description |
-|---|---|
-| `MONGODB_URI` | Your MongoDB connection string |
-| `JWT_SECRET` | Your JWT signing secret |
-| `GEMINI_API_KEY` | Google AI Studio API key |
-
-## Current Product Notes
-
-- Chatbot voice input uses the browser speech recognition API when supported.
-- Spoken replies use browser speech synthesis when enabled.
-- If `GEMINI_API_KEY` is missing or invalid, chat and mood analysis fall back gracefully.
+- Protected backend routes derive identity from the JWT and do not trust a frontend `userId`.
+- If Gemini is missing or unavailable, mood analysis and chat fall back gracefully instead of crashing.
 - There is no seeded demo account. Use sign up or continue anonymously.
+- This project is a software product, not a crisis response service.

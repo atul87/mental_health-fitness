@@ -1,10 +1,13 @@
-import '@testing-library/jest-dom';
-import { server } from './mocks/server';
+import '@testing-library/jest-dom'
+import { server } from './mocks/server'
 
-// Patch jsdom: scrollIntoView is not implemented in jsdom
-window.HTMLElement.prototype.scrollIntoView = function () {};
+// Patch jsdom: scrollIntoView is not implemented in jsdom.
+window.HTMLElement.prototype.scrollIntoView = function () {}
 
-// MSW lifecycle hooks — run once per test file suite
-beforeAll(() => server.listen({ onUnhandledRequest: 'warn' }));
-afterEach(() => server.resetHandlers());
-afterAll(() => server.close());
+// MSW lifecycle hooks for the test suite.
+beforeAll(() => server.listen({ onUnhandledRequest: 'warn' }))
+afterEach(() => {
+  server.resetHandlers()
+  localStorage.clear()
+})
+afterAll(() => server.close())

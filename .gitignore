@@ -9,6 +9,8 @@ Mental-health/node_modules/
 
 # Build outputs
 Mental-health/dist/
+coverage/
+coverage/backend/
 Mental-health/coverage/
 Mental-health/coverage_output.txt
 Mental-health/coverage_full.txt

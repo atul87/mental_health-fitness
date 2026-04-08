@@ -1,54 +1,123 @@
-import { http, HttpResponse } from 'msw';
+import { http, HttpResponse } from 'msw'
+
+const defaultUser = {
+  id: 'user-123',
+  name: 'Test User',
+  email: 'test@test.com',
+  avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=test@test.com',
+  bio: 'Testing profile bio',
+  goals: ['Track mood daily', 'Practice meditation'],
+  joinDate: '2026-01-10T10:00:00.000Z',
+  isAnonymous: false
+}
 
 export const handlers = [
-  // 🔐 Auth: Login
   http.post('http://localhost:3003/api/auth/login', () => {
     return HttpResponse.json({
+      success: true,
       token: 'fake-token',
-      user: { id: 'user-123', name: 'Test User', email: 'test@test.com' },
-    });
+      user: defaultUser
+    })
   }),
 
-  // 🔐 Auth: Register anonymous
   http.post('http://localhost:3003/api/auth/register-anonymous', () => {
     return HttpResponse.json({
+      success: true,
       token: 'fake-token',
-      user: { id: 'anon-123', name: 'Anonymous User', email: null },
-    });
+      user: { ...defaultUser, id: 'anon-123', name: 'Anonymous User', isAnonymous: true }
+    })
   }),
 
-  // 🔐 Auth: /me
   http.get('http://localhost:3003/api/auth/me', () => {
     return HttpResponse.json({
-      user: { id: 'user-123', name: 'Test User', email: 'test@test.com' },
-    });
+      success: true,
+      user: defaultUser
+    })
   }),
 
-  // 📓 Journal: List
+  http.put('http://localhost:3003/api/auth/me', async ({ request }) => {
+    const body = await request.json()
+
+    return HttpResponse.json({
+      success: true,
+      user: {
+        ...defaultUser,
+        ...body,
+        goals: body.goals || defaultUser.goals
+      }
+    })
+  }),
+
   http.get('http://localhost:3003/api/journal', () => {
-    return HttpResponse.json({ success: true, entries: [] });
+    return HttpResponse.json({ success: true, entries: [] })
   }),
 
-  // 📓 Journal: Create
-  http.post('http://localhost:3003/api/journal', () => {
+  http.post('http://localhost:3003/api/journal', async ({ request }) => {
+    const body = await request.json()
+
     return HttpResponse.json({
       success: true,
       entry: {
         _id: 'entry-123',
-        title: 'My Great Day',
-        content: 'Feeling great today!',
-        mood: 5,
-        createdAt: new Date().toISOString(),
-      },
-    });
+        title: body.title || 'My Great Day',
+        content: body.content || 'Feeling great today!',
+        mood: body.mood || 5,
+        createdAt: new Date().toISOString()
+      }
+    })
   }),
 
-  // 🤖 Chatbot: History
+  http.put('http://localhost:3003/api/journal/:id', async ({ params, request }) => {
+    const body = await request.json()
+
+    return HttpResponse.json({
+      success: true,
+      entry: {
+        _id: params.id,
+        title: body.title,
+        content: body.content,
+        mood: body.mood,
+        createdAt: new Date().toISOString()
+      }
+    })
+  }),
+
+  http.delete('http://localhost:3003/api/journal/:id', () => {
+    return HttpResponse.json({ success: true })
+  }),
+
+  http.get('http://localhost:3003/api/mood/history', () => {
+    return HttpResponse.json({ success: true, moods: [] })
+  }),
+
+  http.post('http://localhost:3003/api/mood/analyze', () => {
+    return HttpResponse.json({
+      success: true,
+      mood: { mood: 'Neutral', confidence: 0.5, keywords: ['calm'] }
+    })
+  }),
+
+  http.get('http://localhost:3003/api/exercises/history', () => {
+    return HttpResponse.json({ success: true, history: [] })
+  }),
+
+  http.post('http://localhost:3003/api/exercises/complete', async ({ request }) => {
+    const body = await request.json()
+
+    return HttpResponse.json({
+      success: true,
+      exercise: {
+        _id: 'exercise-123',
+        ...body,
+        completedAt: new Date().toISOString()
+      }
+    })
+  }),
+
   http.get('http://localhost:3003/api/chatbot/history', () => {
-    return HttpResponse.json({ success: true, messages: [] });
+    return HttpResponse.json({ success: true, messages: [] })
   }),
 
-  // 🤖 Chatbot: Chat (online mode by default)
   http.post('http://localhost:3003/api/chatbot/chat', () => {
     return HttpResponse.json({
       success: true,
@@ -56,21 +125,12 @@ export const handlers = [
       mode: 'online',
       emotion: 'supportive',
       botMessageId: 'bot-msg-123',
-      botMessageCreatedAt: new Date().toISOString(),
-    });
-  }),
+      botMessageCreatedAt: new Date().toISOString()
+    })
+  })
+]
 
-  // 💭 Mood analysis
-  http.post('http://localhost:3003/api/mood/analyze', () => {
-    return HttpResponse.json({
-      success: true,
-      mood: { mood: 'Neutral', score: 0.5 },
-    });
-  }),
-];
-
-// Offline chatbot handler — export for per-test override
 export const offlineChatHandler = http.post(
   'http://localhost:3003/api/chatbot/chat',
   () => HttpResponse.error()
-);
+)
