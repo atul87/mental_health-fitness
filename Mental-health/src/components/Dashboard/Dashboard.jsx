@@ -10,7 +10,11 @@ import {
   Calendar,
   Target,
   Brain,
-  Smile
+  Smile,
+  Sparkles,
+  TrendingUp,
+  TrendingDown,
+  Minus
 } from 'lucide-react'
 import { Line } from 'react-chartjs-2'
 import {
@@ -99,6 +103,58 @@ const calculateMoodStreak = (moods) => {
   return streak
 }
 
+const getMoodTrend = (moodData) => {
+  if (moodData.length < 2) return 'steady'
+  const recent = moodData.slice(-3)
+  const older = moodData.slice(-6, -3)
+  if (older.length === 0) return 'steady'
+  const recentAvg = recent.reduce((a, b) => a + b, 0) / recent.length
+  const olderAvg = older.reduce((a, b) => a + b, 0) / older.length
+  if (recentAvg > olderAvg + 0.5) return 'improving'
+  if (recentAvg < olderAvg - 0.5) return 'declining'
+  return 'steady'
+}
+
+const getInsightMessage = (trend, streak, average) => {
+  if (trend === 'improving') {
+    return { text: "You've been feeling better lately — keep it up! 🌿", icon: TrendingUp, color: '#10b981' }
+  }
+  if (trend === 'declining') {
+    return { text: "Hang in there — every step counts 💙", icon: TrendingDown, color: '#6366f1' }
+  }
+  if (streak >= 3) {
+    return { text: `Amazing ${streak}-day streak! You're building real momentum 🔥`, icon: Sparkles, color: '#f59e0b' }
+  }
+  if (parseFloat(average) >= 7) {
+    return { text: "You're doing great today — keep shining 🌟", icon: Sparkles, color: '#f59e0b' }
+  }
+  return { text: "You're here, and that matters. Take it one step at a time 💙", icon: Heart, color: '#ec4899' }
+}
+
+const getTrendLabel = (trend) => {
+  if (trend === 'improving') return { text: 'Improving trend 📈', color: '#10b981' }
+  if (trend === 'declining') return { text: 'Take it easy 🤗', color: '#f59e0b' }
+  return { text: 'Steady & stable 🌊', color: '#6366f1' }
+}
+
+// Skeleton Loader Components
+const SkeletonStatCard = () => (
+  <div className="stat-card card-3d skeleton-stat">
+    <div className="skeleton skeleton-icon" />
+    <div className="skeleton-stat-content">
+      <div className="skeleton skeleton-text medium" />
+      <div className="skeleton skeleton-text short" />
+    </div>
+  </div>
+)
+
+const SkeletonChartCard = () => (
+  <div className="chart-card card-3d">
+    <div className="skeleton skeleton-text medium" style={{ marginBottom: '1.5rem' }} />
+    <div className="skeleton skeleton-chart" />
+  </div>
+)
+
 export default function Dashboard() {
   const { user } = useAuth()
   const [loading, setLoading] = useState(true)
@@ -112,6 +168,7 @@ export default function Dashboard() {
   })
   const [recentActivity, setRecentActivity] = useState([])
   const [currentMoodLabel, setCurrentMoodLabel] = useState('No mood logged yet')
+  const [moodTrend, setMoodTrend] = useState('steady')
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -151,6 +208,7 @@ export default function Dashboard() {
             )
           )
           setCurrentMoodLabel(moods[0]?.mood || 'No mood logged yet')
+          setMoodTrend(getMoodTrend(moodValues))
           setStats({
             currentStreak: calculateMoodStreak(moods),
             totalSessions: exerciseHistory.length,
@@ -161,6 +219,7 @@ export default function Dashboard() {
           setMoodData([0])
           setMoodLabels(['No Data'])
           setCurrentMoodLabel('No mood logged yet')
+          setMoodTrend('steady')
           setStats({
             currentStreak: 0,
             totalSessions: exerciseHistory.length,
@@ -349,11 +408,30 @@ export default function Dashboard() {
     </motion.div>
   )
 
+  const insight = getInsightMessage(moodTrend, stats.currentStreak, stats.moodAverage)
+  const trendLabel = getTrendLabel(moodTrend)
+
   if (loading) {
     return (
-      <div className="dashboard loading-state">
-        <div style={{ padding: '4rem', color: 'white', textAlign: 'center' }}>
-          <h2>Loading your dashboard...</h2>
+      <div className="dashboard">
+        <div className="container">
+          <div className="dashboard-header skeleton-header">
+            <div className="welcome-content">
+              <div className="skeleton skeleton-text long" style={{ height: '2rem', marginBottom: '0.75rem' }} />
+              <div className="skeleton skeleton-text medium" />
+            </div>
+          </div>
+          <section className="stats-section">
+            <div className="stats-grid">
+              <SkeletonStatCard />
+              <SkeletonStatCard />
+              <SkeletonStatCard />
+              <SkeletonStatCard />
+            </div>
+          </section>
+          <section className="chart-section">
+            <SkeletonChartCard />
+          </section>
         </div>
       </div>
     )
@@ -370,11 +448,29 @@ export default function Dashboard() {
         >
           <div className="welcome-content">
             <h1>Welcome back, {user.name}!</h1>
-            <p>Here&apos;s your mental wellness overview for today</p>
+            <p>You&apos;re doing great today 💙</p>
           </div>
           <div className="user-mood">
             <Smile size={40} className="mood-icon" />
             <span>{currentMoodLabel}</span>
+          </div>
+        </motion.div>
+
+        {/* Daily Insight Card */}
+        <motion.div
+          className="insight-card"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.15 }}
+        >
+          <div className="insight-icon" style={{ color: insight.color }}>
+            {createElement(insight.icon, { size: 28 })}
+          </div>
+          <div className="insight-content">
+            <p className="insight-text">{insight.text}</p>
+            <div className="mood-trend-badge" style={{ color: trendLabel.color, borderColor: trendLabel.color }}>
+              {trendLabel.text}
+            </div>
           </div>
         </motion.div>
 

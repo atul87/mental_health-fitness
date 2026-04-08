@@ -1,41 +1,18 @@
-import { createElement } from 'react'
+import { createElement, useState, useEffect, lazy, Suspense } from 'react'
 import { motion } from 'framer-motion'
-import { Canvas } from '@react-three/fiber'
-import { OrbitControls, Sphere, MeshDistortMaterial, Float } from '@react-three/drei'
 import { Link } from 'react-router-dom'
-import { Brain, Heart, Shield, Zap, Star, NotebookPen } from 'lucide-react'
+import { Brain, Heart, Shield, Zap, Star, NotebookPen, Lock, Bot, Wifi } from 'lucide-react'
 import './Landing.css'
 
-const AnimatedSphere = () => {
-  return (
-    <Float speed={2} rotationIntensity={2} floatIntensity={3}>
-      <Sphere args={[1, 128, 128]} scale={2.5}>
-        <MeshDistortMaterial
-          color="#a855f7"
-          emissive="#6366f1"
-          emissiveIntensity={0.5}
-          attach="material"
-          distort={0.4}
-          speed={2}
-          roughness={0.2}
-          metalness={0.8}
-          wireframe={true}
-        />
-      </Sphere>
-      <Sphere args={[1, 64, 64]} scale={2.4}>
-        <MeshDistortMaterial
-          color="#ec4899"
-          attach="material"
-          distort={0.5}
-          speed={1.5}
-          roughness={0}
-          transparent={true}
-          opacity={0.8}
-        />
-      </Sphere>
-    </Float>
-  )
-}
+// Lazy-load the entire 3D hero to keep @react-three out of the main bundle
+const HeroVisual3D = lazy(() => import('./HeroVisual3D'))
+
+const HeroFallback = () => (
+  <div className="hero-3d-fallback">
+    <div className="fallback-orb" />
+    <p className="fallback-text">Loading experience...</p>
+  </div>
+)
 
 const FeatureCard = ({ icon: Icon, title, description, delay }) => {
   return (
@@ -70,6 +47,13 @@ const StatCard = ({ number, label, delay }) => {
 }
 
 export default function Landing() {
+  const [show3D, setShow3D] = useState(false)
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShow3D(true), 300)
+    return () => clearTimeout(timer)
+  }, [])
+
   const features = [
     {
       icon: Brain,
@@ -116,8 +100,8 @@ export default function Landing() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8 }}
               >
-                Your Mental Wellness
-                <span className="text-gradient"> Journey Starts Here</span>
+                Your AI Companion for
+                <span className="text-gradient"> Mental Clarity</span>
               </motion.h1>
               
               <motion.p
@@ -126,8 +110,29 @@ export default function Landing() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.2 }}
               >
-                <strong>Your AI Companion for Mental Clarity.</strong> Track your mood, practice CBT exercises, and build resilience with an intelligent, fault-tolerant platform.
+                Reflect, track, and feel better — every day. Private, secure, and always here for you.
               </motion.p>
+
+              {/* Trust Signals */}
+              <motion.div
+                className="trust-signals"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.35 }}
+              >
+                <div className="trust-pill">
+                  <Lock size={14} />
+                  <span>Private & Secure</span>
+                </div>
+                <div className="trust-pill">
+                  <Bot size={14} />
+                  <span>AI Powered</span>
+                </div>
+                <div className="trust-pill">
+                  <Wifi size={14} />
+                  <span>Works Offline</span>
+                </div>
+              </motion.div>
               
               <motion.div
                 className="hero-buttons"
@@ -136,21 +141,21 @@ export default function Landing() {
                 transition={{ duration: 0.8, delay: 0.4 }}
               >
                 <Link to="/login" className="btn btn-primary btn-large">
-                  Start Your Journey
+                  Start Feeling Better
                 </Link>
                 <Link to="/login" className="btn btn-secondary btn-large">
-                  Continue Anonymously
+                  Try Anonymously
                 </Link>
               </motion.div>
             </div>
             
             <div className="hero-visual">
-              <Canvas>
-                <ambientLight intensity={0.5} />
-                <directionalLight position={[10, 10, 5]} intensity={1} />
-                <AnimatedSphere />
-                <OrbitControls enableZoom={false} enablePan={false} />
-              </Canvas>
+              {show3D && (
+                <Suspense fallback={<HeroFallback />}>
+                  <HeroVisual3D />
+                </Suspense>
+              )}
+              {!show3D && <HeroFallback />}
             </div>
           </div>
         </div>
@@ -206,10 +211,10 @@ export default function Landing() {
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            <h2>Ready to Transform Your Mental Health?</h2>
-            <p>Join thousands of users who have found peace and clarity through our platform</p>
+            <h2>Every Step Counts 💙</h2>
+            <p>Join thousands finding peace and clarity through our platform</p>
             <Link to="/login" className="btn btn-accent btn-large">
-              Get Started Free
+              Start Feeling Better
             </Link>
           </motion.div>
         </div>

@@ -1,7 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Canvas } from '@react-three/fiber'
-import { Sphere, MeshDistortMaterial, Float } from '@react-three/drei'
 import {
   Send,
   Bot,
@@ -16,20 +14,6 @@ import {
 import { useAuth } from '../../context/AuthContext'
 import { apiRequest } from '../../lib/api'
 import './Chatbot.css'
-
-const FloatingOrb = ({ isListening }) => (
-  <Float speed={2} rotationIntensity={1} floatIntensity={2}>
-    <Sphere args={[0.5, 64, 64]}>
-      <MeshDistortMaterial
-        color={isListening ? '#f093fb' : '#667eea'}
-        attach="material"
-        distort={isListening ? 0.6 : 0.3}
-        speed={isListening ? 3 : 1.5}
-        roughness={0}
-      />
-    </Sphere>
-  </Float>
-)
 
 const quickResponses = [
   "I'm feeling anxious",
@@ -236,11 +220,17 @@ export default function Chatbot() {
         emotion: botResponseData.emotion || 'supportive'
       }
 
+      // Small delay for a more natural, human-like feel
+      await new Promise((resolve) => setTimeout(resolve, 400))
+
       setMessages((previousMessages) => [...previousMessages, botResponse])
       speakText(botResponse.text)
     } catch (error) {
       console.error('Error in handleSubmit:', error)
       setChatMode('offline')
+
+      await new Promise((resolve) => setTimeout(resolve, 300))
+
       const fallbackResponse = {
         id: `fallback-${Date.now()}`,
         text: "I'm here to support you. Could you share a bit more about what you're feeling?",
@@ -334,17 +324,13 @@ export default function Chatbot() {
         <div className="chat-header">
           <div className="ai-companion-info">
             <div className="companion-visual">
-              <Canvas>
-                <ambientLight intensity={0.5} />
-                <directionalLight position={[10, 10, 5]} intensity={1} />
-                <FloatingOrb isListening={isListening} />
-              </Canvas>
+              <div className={`css-orb ${isListening ? 'listening' : ''}`} />
             </div>
             <div className="companion-details">
               <h2>AI Companion</h2>
               {chatMode === 'offline' ? (
-                <p className="status" style={{ color: '#ffcc00' }}>
-                  <span className="status-dot" style={{ backgroundColor: '#ffcc00' }}></span>
+                <p className="status offline-status">
+                  <span className="status-dot offline-dot"></span>
                   AI offline mode
                 </p>
               ) : (
@@ -371,6 +357,19 @@ export default function Chatbot() {
           </div>
         </div>
 
+        {/* Offline Banner */}
+        {chatMode === 'offline' && (
+          <motion.div
+            className="offline-banner"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+          >
+            <span className="offline-banner-icon">🌙</span>
+            <span>AI Offline Mode — I&apos;m still here with you</span>
+          </motion.div>
+        )}
+
         <div className="messages-container">
           {isFetchingHistory ? (
             <div className="loading-state" style={{ display: 'flex', justifyContent: 'center', padding: '2rem' }}>
@@ -394,10 +393,13 @@ export default function Chatbot() {
               <div className="bot-avatar">
                 <Bot size={20} />
               </div>
-              <div className="typing-animation">
-                <span></span>
-                <span></span>
-                <span></span>
+              <div className="typing-wrapper">
+                <div className="typing-animation">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+                <span className="thinking-label">AI is thinking...</span>
               </div>
             </motion.div>
           )}

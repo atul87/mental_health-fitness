@@ -89,6 +89,24 @@
   color: white;
   background: var(--primary-color);
   box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+  animation: active-glow 2s ease-in-out infinite;
+}
+
+@keyframes active-glow {
+  0%, 100% { box-shadow: 0 0 15px rgba(99, 102, 241, 0.3); }
+  50% { box-shadow: 0 0 25px rgba(99, 102, 241, 0.6), 0 0 40px rgba(168, 85, 247, 0.2); }
+}
+
+.logo-icon {
+  animation: heartbeat 3s ease-in-out infinite;
+}
+
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  15% { transform: scale(1.15); }
+  30% { transform: scale(1); }
+  45% { transform: scale(1.1); }
+  60% { transform: scale(1); }
 }
 
 /* User Section */

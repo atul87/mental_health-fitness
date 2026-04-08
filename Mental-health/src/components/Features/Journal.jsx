@@ -8,13 +8,23 @@ import {
   Edit3,
   Trash2,
   Save,
-  X
+  X,
+  Sparkles
 } from 'lucide-react'
 import { format } from 'date-fns'
 import { apiRequest } from '../../lib/api'
 import './Journal.css'
 
 const emptyEntry = { title: '', content: '', mood: 5, tags: [] }
+
+const journalPrompts = [
+  { emoji: '✨', text: 'What made you smile today?' },
+  { emoji: '🙏', text: "What's one thing you're grateful for?" },
+  { emoji: '💭', text: 'How are you really feeling right now?' },
+  { emoji: '🌱', text: 'What did you learn about yourself today?' },
+  { emoji: '💪', text: "What challenge did you overcome?" },
+  { emoji: '🌙', text: 'What would make tomorrow great?' }
+]
 
 export default function Journal() {
   const [entries, setEntries] = useState([])
@@ -52,8 +62,11 @@ export default function Journal() {
     fetchEntries()
   }, [])
 
-  const openNewEntry = () => {
-    setCurrentEntry(emptyEntry)
+  const openNewEntry = (promptText) => {
+    setCurrentEntry({
+      ...emptyEntry,
+      title: promptText || ''
+    })
     setEditingEntryId(null)
     setIsWriting(true)
   }
@@ -135,12 +148,14 @@ export default function Journal() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <h1>Personal Journal</h1>
-          <p>Write your thoughts, reflect on your day, and track your emotional journey</p>
+          <div>
+            <h1>Personal Journal</h1>
+            <p>Write your thoughts, reflect on your day, and track your emotional journey</p>
+          </div>
 
           <motion.button
             className="btn btn-primary new-entry-btn"
-            onClick={openNewEntry}
+            onClick={() => openNewEntry('')}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
@@ -217,6 +232,11 @@ export default function Journal() {
                 </div>
 
                 <div className="modal-content">
+                  <div className="writing-prompt-hint">
+                    <Sparkles size={16} />
+                    <span>What&apos;s on your mind today?</span>
+                  </div>
+
                   <input
                     type="text"
                     placeholder="Entry title..."
@@ -242,7 +262,7 @@ export default function Journal() {
                   </div>
 
                   <textarea
-                    placeholder="What's on your mind? Write about your day, thoughts, feelings, or anything you'd like to remember..."
+                    placeholder="Take a deep breath... then write whatever comes to mind 🌿"
                     value={currentEntry.content}
                     onChange={(event) => setCurrentEntry((previous) => ({ ...previous, content: event.target.value }))}
                     className="content-textarea"
@@ -325,12 +345,37 @@ export default function Journal() {
               animate={{ opacity: 1 }}
             >
               <BookOpen size={48} />
-              <h3>No entries found</h3>
+              <h3>
+                {searchTerm || selectedMood
+                  ? 'No entries found'
+                  : 'Start your journaling journey'}
+              </h3>
               <p>
                 {searchTerm || selectedMood
                   ? 'Try adjusting your search or filter criteria'
-                  : 'Start your journaling journey by writing your first entry'}
+                  : 'Choose a prompt below to get started, or write freely'}
               </p>
+
+              {/* Clickable Journal Prompts */}
+              {!searchTerm && selectedMood === null && (
+                <div className="journal-prompts">
+                  {journalPrompts.map((prompt, index) => (
+                    <motion.button
+                      key={prompt.text}
+                      className="prompt-card"
+                      onClick={() => openNewEntry(prompt.text)}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.4, delay: 0.2 + index * 0.08 }}
+                      whileHover={{ y: -5, scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <span className="prompt-emoji">{prompt.emoji}</span>
+                      <span className="prompt-text">{prompt.text}</span>
+                    </motion.button>
+                  ))}
+                </div>
+              )}
             </motion.div>
           )}
         </div>

@@ -45,6 +45,54 @@
   overflow: hidden;
   background: rgba(255, 255, 255, 0.2);
   border: 2px solid rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ===== CSS Orb (Lightweight 3D Replacement) ===== */
+.css-orb {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%,
+    rgba(255, 255, 255, 0.5),
+    rgba(102, 126, 234, 0.8),
+    rgba(168, 85, 247, 0.9)
+  );
+  box-shadow:
+    0 0 15px rgba(102, 126, 234, 0.4),
+    0 0 30px rgba(168, 85, 247, 0.2),
+    inset 0 -3px 8px rgba(0, 0, 0, 0.2);
+  animation: orb-float 3s ease-in-out infinite, orb-pulse 2s ease-in-out infinite;
+}
+
+.css-orb.listening {
+  background: radial-gradient(circle at 35% 35%,
+    rgba(255, 255, 255, 0.6),
+    rgba(240, 147, 251, 0.8),
+    rgba(236, 72, 153, 0.9)
+  );
+  box-shadow:
+    0 0 20px rgba(236, 72, 153, 0.5),
+    0 0 40px rgba(240, 147, 251, 0.3),
+    inset 0 -3px 8px rgba(0, 0, 0, 0.2);
+  animation: orb-float 1.5s ease-in-out infinite, orb-pulse-fast 0.8s ease-in-out infinite;
+}
+
+@keyframes orb-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes orb-pulse {
+  0%, 100% { opacity: 0.9; transform: scale(1) translateY(0); }
+  50% { opacity: 1; transform: scale(1.05) translateY(-4px); }
+}
+
+@keyframes orb-pulse-fast {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.12); }
 }
 
 .companion-details h2 {
@@ -67,6 +115,32 @@
   background: #10b981;
   border-radius: 50%;
   animation: pulse 2s infinite;
+}
+
+.offline-status {
+  color: #fcd34d;
+}
+
+.offline-dot {
+  background: #fcd34d !important;
+}
+
+/* ===== Offline Banner ===== */
+.offline-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(251, 191, 36, 0.08));
+  border-bottom: 1px solid rgba(245, 158, 11, 0.2);
+  color: #fcd34d;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.offline-banner-icon {
+  font-size: 1.2rem;
 }
 
 .chat-controls {
@@ -287,6 +361,12 @@
   max-width: 80%;
 }
 
+.typing-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
 .typing-animation {
   display: flex;
   gap: 4px;
@@ -321,6 +401,20 @@
     transform: translateY(-10px);
     opacity: 1;
   }
+}
+
+/* ===== Thinking Label ===== */
+.thinking-label {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-style: italic;
+  animation: thinking-fade 2s ease-in-out infinite;
+}
+
+@keyframes thinking-fade {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
 }
 
 /* Quick Responses */
@@ -559,6 +653,11 @@
   .companion-visual {
     width: 50px;
     height: 50px;
+  }
+
+  .css-orb {
+    width: 36px;
+    height: 36px;
   }
   
   .companion-details h2 {
