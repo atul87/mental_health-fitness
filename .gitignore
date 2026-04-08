@@ -1,0 +1,24 @@
+# Environment variables — NEVER commit these
+.env
+.env.local
+.env.production
+
+# Dependency directories
+node_modules/
+Mental-health/node_modules/
+
+# Build outputs
+Mental-health/dist/
+Mental-health/coverage/
+Mental-health/coverage_output.txt
+Mental-health/coverage_full.txt
+
+# Logs
+*.log
+.server.out.log
+.server.err.log
+.server.pid
+
+# OS files
+.DS_Store
+Thumbs.db
