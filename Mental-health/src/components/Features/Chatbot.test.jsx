@@ -70,7 +70,7 @@ describe('Chatbot Component', () => {
     const form = container.querySelector('.chat-form');
     fireEvent.submit(form);
 
-    // On error → chatMode becomes 'offline' → UI shows "AI offline mode"
-    expect(await screen.findByText(/AI offline mode/i)).toBeInTheDocument();
+    // On error -> chatMode becomes offline -> header shows exact offline status text
+    expect(await screen.findByText(/^AI offline mode$/i)).toBeInTheDocument();
   });
 });

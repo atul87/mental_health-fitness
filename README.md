@@ -16,6 +16,7 @@ SoulCare is a full-stack mental wellness application built with React, Vite, Exp
 ## Tech Stack
 
 Frontend:
+
 - React
 - Vite
 - React Router
@@ -27,6 +28,7 @@ Frontend:
 - MSW
 
 Backend:
+
 - Node.js
 - Express
 - MongoDB with Mongoose
@@ -88,6 +90,7 @@ VITE_API_URL=http://localhost:3003
 ## Scripts
 
 Root:
+
 - `npm run dev` - start backend with nodemon
 - `npm start` - start backend in production mode
 - `npm test` - run backend tests
@@ -99,6 +102,7 @@ Root:
 - `npm run ci:check` - backend tests, frontend tests, lint, and build
 
 Frontend:
+
 - `npm run dev` - start Vite dev server
 - `npm test` - run Vitest once
 - `npm run coverage` - run Vitest with coverage
@@ -112,6 +116,7 @@ Frontend:
 Backend tests use Jest + Supertest against the Express app directly.
 
 Covered flows:
+
 - registration
 - login
 - authenticated journal create
@@ -130,6 +135,7 @@ npm run coverage:backend
 Frontend tests use Vitest + React Testing Library + MSW. API calls are intercepted at the network layer, so component behavior is tested without a live backend.
 
 Covered components:
+
 - `Login`
 - `Journal`
 - `Chatbot`
@@ -149,13 +155,17 @@ npm run coverage
 
 GitHub Actions is configured in `.github/workflows/ci.yml`.
 
-The pipeline runs on push and pull request for the main working branches and performs:
+The CI pipeline runs on push and pull request for the main working branches and performs:
+
 - backend tests
 - backend coverage
 - frontend tests
 - frontend coverage
 - frontend lint
 - frontend production build
+
+The CD pipeline is defined in `.github/workflows/cd.yml` and deploys the frontend build to GitHub Pages on push to `main`.
+Set the repository variable `VITE_API_URL` in GitHub to the backend URL you want the deployed frontend to call.
 
 The backend CI job uses a MongoDB service container, so no external MongoDB secret is required for test execution.
 

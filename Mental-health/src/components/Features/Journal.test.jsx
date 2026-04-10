@@ -8,14 +8,14 @@ describe('Journal Component', () => {
   test('renders empty journal list', async () => {
     render(<Journal />);
     // Wait for async fetch to complete
-    expect(await screen.findByText(/No entries found/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Start your journaling journey/i)).toBeInTheDocument();
   });
 
   test('user can create a journal entry via UI', async () => {
     render(<Journal />);
 
     // Wait for initial load
-    await screen.findByText(/No entries found/i);
+    await screen.findByText(/Start your journaling journey/i);
 
     // Open the "New Entry" modal
     fireEvent.click(screen.getByRole('button', { name: /new entry/i }));
@@ -26,7 +26,7 @@ describe('Journal Component', () => {
     });
 
     // Fill in content
-    fireEvent.change(screen.getByPlaceholderText(/What's on your mind/i), {
+    fireEvent.change(screen.getByPlaceholderText(/Take a deep breath/i), {
       target: { value: 'Feeling great today!' },
     });
 

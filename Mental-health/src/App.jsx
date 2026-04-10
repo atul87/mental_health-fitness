@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react'
-import { BrowserRouter as RouterComp, Routes as RoutesComp, Route as RouteComp, Navigate as NavigateComp } from 'react-router-dom'
+import { HashRouter as RouterComp, Routes as RoutesComp, Route as RouteComp, Navigate as NavigateComp } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import './App.css'
 
@@ -28,11 +28,11 @@ const AppLoadingScreen = () => (
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
-  
+
   if (loading) {
     return <AppLoadingScreen />;
   }
-  
+
   return user ? children : <NavigateComp to="/login" />;
 }
 
@@ -51,37 +51,37 @@ const AppContent = () => {
           {user && <Navbar />}
           <Suspense fallback={<AppLoadingScreen />}>
             <RoutesComp>
-              <RouteComp 
-                path="/" 
-                element={user ? <NavigateComp to="/dashboard" /> : <Landing />} 
+              <RouteComp
+                path="/"
+                element={user ? <NavigateComp to="/dashboard" /> : <Landing />}
               />
-              <RouteComp 
-                path="/login" 
-                element={user ? <NavigateComp to="/dashboard" /> : <Login />} 
+              <RouteComp
+                path="/login"
+                element={user ? <NavigateComp to="/dashboard" /> : <Login />}
               />
-              <RouteComp 
-                path="/dashboard" 
-                element={<ProtectedRoute><Dashboard /></ProtectedRoute>} 
+              <RouteComp
+                path="/dashboard"
+                element={<ProtectedRoute><Dashboard /></ProtectedRoute>}
               />
-              <RouteComp 
-                path="/chat" 
-                element={<ProtectedRoute><Chatbot /></ProtectedRoute>} 
+              <RouteComp
+                path="/chat"
+                element={<ProtectedRoute><Chatbot /></ProtectedRoute>}
               />
-              <RouteComp 
-                path="/mood" 
-                element={<ProtectedRoute><MoodTracker /></ProtectedRoute>} 
+              <RouteComp
+                path="/mood"
+                element={<ProtectedRoute><MoodTracker /></ProtectedRoute>}
               />
-              <RouteComp 
-                path="/journal" 
-                element={<ProtectedRoute><Journal /></ProtectedRoute>} 
+              <RouteComp
+                path="/journal"
+                element={<ProtectedRoute><Journal /></ProtectedRoute>}
               />
-              <RouteComp 
-                path="/exercises" 
-                element={<ProtectedRoute><Exercises /></ProtectedRoute>} 
+              <RouteComp
+                path="/exercises"
+                element={<ProtectedRoute><Exercises /></ProtectedRoute>}
               />
-              <RouteComp 
-                path="/profile" 
-                element={<ProtectedRoute><Profile /></ProtectedRoute>} 
+              <RouteComp
+                path="/profile"
+                element={<ProtectedRoute><Profile /></ProtectedRoute>}
               />
             </RoutesComp>
           </Suspense>
