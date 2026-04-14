@@ -1,19 +1,27 @@
-# SoulCare AI
+# SoulCare
 
-SoulCare is a full-stack mental wellness application built with React, Vite, Express, and MongoDB. The current codebase includes authenticated journaling, mood analysis, guided exercises, and an AI chat experience with graceful offline fallback when Gemini is unavailable.
+SoulCare is a full-stack mental wellness app with a React + Vite frontend and an Express + MongoDB backend. It includes authentication, journaling, mood tracking/analysis, guided exercises, and an AI chat experience with backend fallback behavior when Gemini is unavailable.
 
-## Current Capabilities
+## Highlights
 
-- JWT-based authentication with protected backend routes
-- Anonymous access flow for low-friction onboarding
-- Private journal create, read, update, and delete flows
-- Mood analysis, mood history, and mood insights
-- Guided exercise sessions with a working timer and completion logging
-- AI chat history with backend persistence and browser voice features where supported
-- Frontend and backend automated test coverage
-- GitHub Actions CI for tests, coverage, lint, and production build validation
+- JWT-based auth with protected API routes
+- Anonymous access option for low-friction onboarding
+- Private CRUD journal entries per user
+- Mood history and AI-assisted mood analysis
+- Guided exercises with timer and completion logging
+- Chat history persistence with optional browser voice features
+- Automated backend and frontend test suites with coverage
 
 ## Tech Stack
+
+Backend:
+
+- Node.js
+- Express
+- MongoDB + Mongoose
+- JWT + bcrypt
+- Google Gemini SDK
+- Jest + Supertest
 
 Frontend:
 
@@ -23,155 +31,151 @@ Frontend:
 - Framer Motion
 - Chart.js
 - React Three Fiber
-- Vitest
-- React Testing Library
-- MSW
+- Vitest + React Testing Library + MSW
 
-Backend:
+## Repository Structure
 
-- Node.js
-- Express
-- MongoDB with Mongoose
-- JWT and bcrypt
-- Google Gemini SDK
-- Jest
-- Supertest
+- `server.js`: backend app bootstrap and middleware wiring
+- `routes/`: API route modules
+- `models/`: Mongoose models
+- `middleware/`: shared backend middleware
+- `tests/`: backend tests
+- `Mental-health/`: frontend app
+- `ARCHITECTURE.md`: request flow and module notes
+- `.github/workflows/ci.yml`: CI pipeline
+- `.github/workflows/cd.yml`: frontend deployment pipeline
 
-## Repository Layout
+## Prerequisites
 
-- `server.js` - Express app bootstrap and middleware setup
-- `routes/` - API route modules
-- `models/` - Mongoose models and data helpers
-- `middleware/` - shared backend middleware
-- `tests/` - backend integration tests
-- `Mental-health/` - Vite + React frontend
-- `.github/workflows/ci.yml` - CI pipeline
+- Node.js 18+
+- npm 9+
+- MongoDB (local or remote)
 
-## Local Setup
+## Quick Start
 
-### Backend
+### 1. Install Dependencies
+
+From the repository root:
 
 ```bash
 npm install
+npm --prefix Mental-health install
+```
+
+### 2. Configure Environment
+
+Backend env:
+
+```bash
 copy .env.example .env
 ```
 
-Configure `.env`:
+Frontend env:
 
-```env
-PORT=3003
-MONGODB_URI=mongodb://127.0.0.1:27017/soulcare
-JWT_SECRET=replace_with_a_long_random_secret
-GEMINI_API_KEY=your_google_ai_studio_key
-FRONTEND_URL=http://localhost:5173
+```bash
+copy Mental-health\.env.example Mental-health\.env
 ```
 
-Start the backend:
+Backend `.env` values:
+
+| Variable | Required | Example |
+| --- | --- | --- |
+| `PORT` | No | `3003` |
+| `MONGODB_URI` | Yes | `mongodb://127.0.0.1:27017/soulcare` |
+| `JWT_SECRET` | Yes | `replace_with_a_long_random_secret` |
+| `GEMINI_API_KEY` | Recommended | `your_google_ai_studio_key` |
+| `FRONTEND_URL` | Yes | `http://localhost:5173` |
+
+Frontend `Mental-health/.env` values:
+
+| Variable | Required | Example |
+| --- | --- | --- |
+| `VITE_API_URL` | Yes | `http://localhost:3003` |
+
+### 3. Run Development Servers
+
+Backend (root):
 
 ```bash
 npm run dev
 ```
 
-### Frontend
+Frontend (new terminal):
 
 ```bash
-cd Mental-health
-npm install
-copy .env.example .env
-npm run dev
-```
-
-Frontend `.env`:
-
-```env
-VITE_API_URL=http://localhost:3003
+npm --prefix Mental-health run dev
 ```
 
 ## Scripts
 
-Root:
+Root scripts:
 
-- `npm run dev` - start backend with nodemon
-- `npm start` - start backend in production mode
-- `npm test` - run backend tests
-- `npm run coverage:backend` - generate backend coverage
-- `npm run test:frontend` - run frontend tests from root
-- `npm run lint:frontend` - run frontend lint from root
-- `npm run build:frontend` - build frontend from root
-- `npm run coverage:frontend` - generate frontend coverage from root
-- `npm run ci:check` - backend tests, frontend tests, lint, and build
+- `npm run dev`: start backend with nodemon
+- `npm start`: start backend in production mode
+- `npm test`: run backend tests
+- `npm run test:backend`: run backend tests
+- `npm run coverage:backend`: backend coverage report
+- `npm run test:frontend`: run frontend tests from root
+- `npm run lint:frontend`: run frontend lint from root
+- `npm run build:frontend`: build frontend from root
+- `npm run coverage:frontend`: frontend coverage report from root
+- `npm run ci:check`: backend tests + frontend tests + lint + build
 
-Frontend:
+Frontend scripts (`Mental-health/package.json`):
 
-- `npm run dev` - start Vite dev server
-- `npm test` - run Vitest once
-- `npm run coverage` - run Vitest with coverage
-- `npm run lint` - run ESLint
-- `npm run build` - create production bundle
+- `npm run dev`: start Vite dev server
+- `npm run build`: create production bundle
+- `npm run preview`: preview production bundle
+- `npm run lint`: run ESLint
+- `npm test`: run Vitest once
+- `npm run test:watch`: run Vitest in watch mode
+- `npm run test:ui`: run Vitest UI
+- `npm run coverage`: run frontend coverage
 
-## Testing
+## Testing and Coverage
 
-### Backend
-
-Backend tests use Jest + Supertest against the Express app directly.
-
-Covered flows:
-
-- registration
-- login
-- authenticated journal create
-- authenticated journal update
-- authenticated journal fetch
-
-Run:
+Backend:
 
 ```bash
 npm test
 npm run coverage:backend
 ```
 
-### Frontend
-
-Frontend tests use Vitest + React Testing Library + MSW. API calls are intercepted at the network layer, so component behavior is tested without a live backend.
-
-Covered components:
-
-- `Login`
-- `Journal`
-- `Chatbot`
-- `MoodTracker`
-- `Exercises`
-- `Profile`
-
-Run:
+Frontend:
 
 ```bash
-cd Mental-health
-npm test
-npm run coverage
+npm --prefix Mental-health test
+npm --prefix Mental-health run coverage
 ```
 
-## CI
+Coverage output:
 
-GitHub Actions is configured in `.github/workflows/ci.yml`.
+- Backend: `coverage/backend/`
+- Frontend: `Mental-health/coverage/`
 
-The CI pipeline runs on push and pull request for the main working branches and performs:
+## API Overview
 
-- backend tests
-- backend coverage
-- frontend tests
-- frontend coverage
-- frontend lint
-- frontend production build
+Base path: `/api`
 
-The CD pipeline is defined in `.github/workflows/cd.yml` and deploys the frontend build to GitHub Pages on push to `main`.
-Set the repository variable `VITE_API_URL` in GitHub to the backend URL you want the deployed frontend to call.
+- `/api/auth`: register, login, anonymous access, profile endpoints
+- `/api/journal`: authenticated journal CRUD
+- `/api/mood`: mood logging, history, analysis
+- `/api/exercises`: exercise logging and history
+- `/api/chatbot`: AI chat and chat history
 
-The backend CI job uses a MongoDB service container, so no external MongoDB secret is required for test execution.
+## CI/CD
 
-## Product Notes
+- CI workflow: `.github/workflows/ci.yml`
+- CD workflow: `.github/workflows/cd.yml`
 
-- Protected backend routes derive identity from the JWT and do not trust a frontend `userId`.
-- If Gemini is missing or unavailable, mood analysis and chat fall back gracefully instead of crashing.
-- There is no seeded demo account. Use sign up or continue anonymously.
-- This project is a software product, not a crisis response service.
+CI validates backend tests/coverage and frontend tests/coverage/lint/build.
+CD deploys the frontend to GitHub Pages on `main`.
+
+For deployed frontend calls, configure the repository variable `VITE_API_URL` to your backend URL.
+
+## Notes
+
+- Protected routes derive identity from JWT claims and do not trust client-supplied user IDs.
+- If Gemini is unavailable, AI-dependent features return fallback behavior instead of crashing.
+- No seeded demo account is included; use sign up or continue anonymously.
+- This project is software for wellness workflows and is not a crisis response service.

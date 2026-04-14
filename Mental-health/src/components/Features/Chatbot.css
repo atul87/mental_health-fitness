@@ -56,10 +56,9 @@
   height: 44px;
   border-radius: 50%;
   background: radial-gradient(circle at 35% 35%,
-    rgba(255, 255, 255, 0.5),
-    rgba(102, 126, 234, 0.8),
-    rgba(168, 85, 247, 0.9)
-  );
+      rgba(255, 255, 255, 0.5),
+      rgba(102, 126, 234, 0.8),
+      rgba(168, 85, 247, 0.9));
   box-shadow:
     0 0 15px rgba(102, 126, 234, 0.4),
     0 0 30px rgba(168, 85, 247, 0.2),
@@ -69,10 +68,9 @@
 
 .css-orb.listening {
   background: radial-gradient(circle at 35% 35%,
-    rgba(255, 255, 255, 0.6),
-    rgba(240, 147, 251, 0.8),
-    rgba(236, 72, 153, 0.9)
-  );
+      rgba(255, 255, 255, 0.6),
+      rgba(240, 147, 251, 0.8),
+      rgba(236, 72, 153, 0.9));
   box-shadow:
     0 0 20px rgba(236, 72, 153, 0.5),
     0 0 40px rgba(240, 147, 251, 0.3),
@@ -81,18 +79,41 @@
 }
 
 @keyframes orb-float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-4px);
+  }
 }
 
 @keyframes orb-pulse {
-  0%, 100% { opacity: 0.9; transform: scale(1) translateY(0); }
-  50% { opacity: 1; transform: scale(1.05) translateY(-4px); }
+
+  0%,
+  100% {
+    opacity: 0.9;
+    transform: scale(1) translateY(0);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.05) translateY(-4px);
+  }
 }
 
 @keyframes orb-pulse-fast {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.12); }
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.12);
+  }
 }
 
 .companion-details h2 {
@@ -393,10 +414,14 @@
 }
 
 @keyframes typing {
-  0%, 60%, 100% {
+
+  0%,
+  60%,
+  100% {
     transform: translateY(0);
     opacity: 0.5;
   }
+
   30% {
     transform: translateY(-10px);
     opacity: 1;
@@ -413,8 +438,15 @@
 }
 
 @keyframes thinking-fade {
-  0%, 100% { opacity: 0.5; }
-  50% { opacity: 1; }
+
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+
+  50% {
+    opacity: 1;
+  }
 }
 
 /* Quick Responses */
@@ -491,11 +523,14 @@
 .chat-input {
   flex: 1;
   border: none;
-  outline: none;
   padding: 0.75rem 1rem;
   background: transparent;
   font-size: 1rem;
   color: var(--text-primary);
+}
+
+.chat-input:focus-visible {
+  box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.18);
 }
 
 .chat-input::placeholder {
@@ -625,12 +660,12 @@
     flex-direction: column;
     padding: 1rem;
   }
-  
+
   .mood-sidebar {
     width: 100%;
     order: -1;
   }
-  
+
   .mood-indicators {
     flex-direction: row;
     justify-content: center;
@@ -641,15 +676,15 @@
   .chatbot-page {
     padding: 0.5rem;
   }
-  
+
   .chat-container {
     height: calc(100vh - var(--navbar-height) - 3rem);
   }
-  
+
   .chat-header {
     padding: 1rem;
   }
-  
+
   .companion-visual {
     width: 50px;
     height: 50px;
@@ -659,23 +694,23 @@
     width: 36px;
     height: 36px;
   }
-  
+
   .companion-details h2 {
     font-size: 1.125rem;
   }
-  
+
   .messages-container {
     padding: 1rem;
   }
-  
+
   .message-bubble {
     max-width: 90%;
   }
-  
+
   .chat-input-container {
     padding: 1rem;
   }
-  
+
   .mood-sidebar {
     padding: 1rem;
   }
@@ -687,21 +722,21 @@
     gap: 1rem;
     text-align: center;
   }
-  
+
   .ai-companion-info {
     flex-direction: column;
     text-align: center;
   }
-  
+
   .quick-buttons {
     justify-content: center;
   }
-  
+
   .quick-btn {
     font-size: 0.8rem;
     padding: 0.4rem 0.8rem;
   }
-  
+
   .mood-indicators {
     flex-direction: column;
   }
@@ -723,4 +758,139 @@
 
 .mood-sidebar {
   transform-style: preserve-3d;
+}
+
+/* ===== Social Nudge Card ===== */
+.social-nudge {
+  margin-top: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 1.25rem;
+  color: var(--text-primary);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+}
+
+.nudge-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--primary-color);
+  margin-bottom: 0.75rem;
+}
+
+.nudge-icon {
+  animation: sparkle-float 3s infinite ease-in-out;
+}
+
+@keyframes sparkle-float {
+
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+
+  50% {
+    transform: translateY(-3px) scale(1.1);
+  }
+}
+
+.social-nudge h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.social-nudge p {
+  margin: 0 0 1.25rem 0 !important;
+  font-size: 0.875rem !important;
+  line-height: 1.5 !important;
+  color: var(--text-secondary) !important;
+}
+
+.nudge-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.nudge-btn.primary {
+  background: var(--gradient-primary);
+  color: white;
+  border: none;
+  padding: 0.6rem 1.25rem;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nudge-btn.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+/* ===== Safety Alert ===== */
+.safety-alert {
+  margin-top: 1.25rem;
+  background: rgba(239, 68, 68, 0.05);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 16px;
+  padding: 1.25rem;
+  text-align: left;
+}
+
+.safety-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 800;
+  color: #ef4444;
+  margin-bottom: 0.75rem;
+  font-size: 1.05rem;
+}
+
+.safety-alert p {
+  font-size: 0.9rem !important;
+  line-height: 1.5 !important;
+  color: var(--text-primary) !important;
+  margin-bottom: 1.25rem !important;
+}
+
+.safety-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.safety-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem;
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.875rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(239, 68, 68, 0.1);
+}
+
+.safety-link:hover {
+  background: #ef4444;
+  color: white;
+  transform: translateY(-1px);
+}
+
+.crisis-message .message-content {
+  border: 1px solid rgba(239, 68, 68, 0.3) !important;
+  background: linear-gradient(to bottom right, var(--bg-secondary), rgba(239, 68, 68, 0.02)) !important;
+  box-shadow: 0 10px 30px rgba(239, 68, 68, 0.08) !important;
 }

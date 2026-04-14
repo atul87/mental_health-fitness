@@ -29,6 +29,8 @@ import {
   Filler
 } from 'chart.js'
 import { apiRequest } from '../../lib/api'
+import { mapMoodToScore } from '../../lib/moods'
+import DailyCheckIn from '../Features/DailyCheckIn'
 import './Dashboard.css'
 
 ChartJS.register(
@@ -41,23 +43,6 @@ ChartJS.register(
   Legend,
   Filler
 )
-
-const mapMoodToScore = (mood) => {
-  switch (mood) {
-    case 'Very Positive':
-      return 10
-    case 'Positive':
-      return 8
-    case 'Neutral':
-      return 6
-    case 'Negative':
-      return 4
-    case 'Very Negative':
-      return 2
-    default:
-      return 6
-  }
-}
 
 const formatRelativeTime = (dateValue) => {
   const diffMs = Date.now() - new Date(dateValue).getTime()
@@ -169,6 +154,8 @@ export default function Dashboard() {
   const [recentActivity, setRecentActivity] = useState([])
   const [currentMoodLabel, setCurrentMoodLabel] = useState('No mood logged yet')
   const [moodTrend, setMoodTrend] = useState('steady')
+  const [showCheckInModal, setShowCheckInModal] = useState(false)
+  const [refreshTrigger, setRefreshTrigger] = useState(0)
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -207,7 +194,9 @@ export default function Dashboard() {
               new Date(entry.createdAt).toLocaleDateString([], { weekday: 'short' })
             )
           )
-          setCurrentMoodLabel(moods[0]?.mood || 'No mood logged yet')
+          
+          const latestMood = moodsChronological[moodsChronological.length - 1];
+          setCurrentMoodLabel(latestMood.mood || 'No mood logged yet')
           setMoodTrend(getMoodTrend(moodValues))
           setStats({
             currentStreak: calculateMoodStreak(moods),
@@ -215,6 +204,13 @@ export default function Dashboard() {
             moodAverage: average.toFixed(1),
             journalEntries: journals.length
           })
+
+          // Check if we need to show the daily check-in (if no mood today)
+          const today = new Date().toISOString().slice(0, 10);
+          const latestDate = new Date(latestMood.createdAt).toISOString().slice(0, 10);
+          if (today !== latestDate) {
+            setShowCheckInModal(true);
+          }
         } else {
           setMoodData([0])
           setMoodLabels(['No Data'])
@@ -226,6 +222,7 @@ export default function Dashboard() {
             moodAverage: '0.0',
             journalEntries: journals.length
           })
+          setShowCheckInModal(true);
         }
 
         const activityItems = [
@@ -274,7 +271,7 @@ export default function Dashboard() {
     if (user?.id) {
       fetchDashboardData()
     }
-  }, [user])
+  }, [user, refreshTrigger])
 
   const chartData = {
     labels: moodLabels,
@@ -571,6 +568,12 @@ export default function Dashboard() {
           </motion.div>
         </section>
       </div>
+
+      <DailyCheckIn 
+        isOpen={showCheckInModal} 
+        onClose={() => setShowCheckInModal(false)} 
+        onComplete={() => setRefreshTrigger((prev) => prev + 1)}
+      />
     </div>
   )
 }

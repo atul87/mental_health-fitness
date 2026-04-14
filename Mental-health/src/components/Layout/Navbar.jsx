@@ -68,7 +68,7 @@ export default function Navbar() {
             <img src={user.avatar} alt={user.name} />
           </div>
           <span className="user-name">{user.name}</span>
-          <button onClick={onLogout} className="logout-btn">
+          <button onClick={onLogout} className="logout-btn" aria-label="Log out">
             <LogOut size={20} />
           </button>
         </div>
@@ -77,6 +77,8 @@ export default function Navbar() {
         <button 
           className="mobile-toggle"
           onClick={() => setIsOpen(!isOpen)}
+          aria-label={isOpen ? 'Close navigation menu' : 'Open navigation menu'}
+          aria-expanded={isOpen}
         >
           {isOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
@@ -110,7 +112,7 @@ export default function Navbar() {
               <img src={user.avatar} alt={user.name} className="mobile-avatar" />
               <span>{user.name}</span>
             </div>
-            <button onClick={onLogout} className="mobile-logout">
+            <button onClick={onLogout} className="mobile-logout" aria-label="Log out">
               <LogOut size={20} />
               <span>Logout</span>
             </button>

@@ -13,6 +13,7 @@ import {
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { apiRequest } from '../../lib/api'
+import { getMoodEmoji } from '../../lib/moods'
 import './Chatbot.css'
 
 const quickResponses = [
@@ -25,23 +26,6 @@ const quickResponses = [
   'Can you recommend a therapist?',
   'I need professional help'
 ]
-
-const getMoodEmoji = (mood) => {
-  switch (mood) {
-    case 'Very Positive':
-      return '😊'
-    case 'Positive':
-      return '🙂'
-    case 'Neutral':
-      return '😐'
-    case 'Negative':
-      return '🙁'
-    case 'Very Negative':
-      return '😢'
-    default:
-      return '😐'
-  }
-}
 
 const formatMessageTime = (dateValue) => new Date(dateValue).toLocaleTimeString([], {
   hour: '2-digit',
@@ -258,6 +242,40 @@ export default function Chatbot() {
     recognitionRef.current.start()
   }
 
+  const SocialNudge = ({ nudge }) => (
+    <motion.div 
+      className="social-nudge card-3d"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+    >
+      <div className="nudge-header">
+        <Sparkles size={18} className="nudge-icon" />
+        <span>Self-Connection Suggestion</span>
+      </div>
+      <h4>{nudge.title}</h4>
+      <p>{nudge.description}</p>
+      <div className="nudge-actions">
+        <button className="nudge-btn primary" onClick={() => setInput(nudge.actionText)}>
+          {nudge.actionLabel}
+        </button>
+      </div>
+    </motion.div>
+  )
+
+  const SafetyAlert = () => (
+    <div className="safety-alert">
+      <div className="safety-header">
+        <Heart size={20} fill="#ef4444" color="#ef4444" />
+        <span>You're not alone</span>
+      </div>
+      <p>It sounds like you're carrying a lot right now. Please know there are people who want to support you.</p>
+      <div className="safety-links">
+        <a href="tel:988" className="safety-link">Call 988 (Crisis Line)</a>
+        <a href="sms:741741" className="safety-link">Text HOME to 741741</a>
+      </div>
+    </div>
+  )
+
   const DoctorRecommendation = ({ doctors }) => (
     <div className="doctor-recommendations">
       <h4>Recommended Support Options</h4>
@@ -290,10 +308,11 @@ export default function Chatbot() {
 
   const MessageBubble = ({ message }) => {
     const isBot = message.sender === 'bot'
+    const isCrisis = message.emotion === 'crisis' || (message.text && /help|suicide|kill|die/i.test(message.text) && isBot)
 
     return (
       <motion.div
-        className={`message-bubble ${isBot ? 'bot-message' : 'user-message'}`}
+        className={`message-bubble ${isBot ? 'bot-message' : 'user-message'} ${isCrisis ? 'crisis-message' : ''}`}
         initial={{ opacity: 0, y: 20, scale: 0.8 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.3 }}
@@ -309,6 +328,8 @@ export default function Chatbot() {
         </div>
         <div className="message-content">
           <p>{message.text}</p>
+          {isBot && isCrisis && <SafetyAlert />}
+          {message.nudge && <SocialNudge nudge={message.nudge} />}
           {message.doctors && message.doctors.length > 0 && <DoctorRecommendation doctors={message.doctors} />}
           <span className="message-time">
             {formatMessageTime(message.timestamp)}
@@ -351,6 +372,7 @@ export default function Chatbot() {
                 setSoundEnabled((current) => !current)
               }}
               title={soundEnabled ? 'Disable spoken replies' : 'Enable spoken replies'}
+              aria-label={soundEnabled ? 'Disable spoken replies' : 'Enable spoken replies'}
             >
               {soundEnabled ? <Volume2 size={20} /> : <VolumeX size={20} />}
             </button>
@@ -422,6 +444,7 @@ export default function Chatbot() {
                       key={response}
                       className="quick-btn"
                       onClick={() => setInput(response)}
+                      aria-label={`Insert quick response: ${response}`}
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.1 }}
@@ -455,6 +478,7 @@ export default function Chatbot() {
                 onClick={toggleListening}
                 disabled={!voiceSupported}
                 title={voiceSupported ? 'Use voice input' : 'Voice input is not supported in this browser'}
+                aria-label={voiceSupported ? 'Use voice input' : 'Voice input is not supported in this browser'}
               >
                 {isListening ? <MicOff size={20} /> : <Mic size={20} />}
               </button>
@@ -462,6 +486,7 @@ export default function Chatbot() {
                 type="submit"
                 className="send-btn"
                 disabled={!input.trim() || isTyping || isFetchingHistory}
+                aria-label="Send message"
               >
                 <Send size={20} />
               </button>

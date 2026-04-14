@@ -1,34 +1,37 @@
 /* Premium SoulCare Styles - Startup Edition */
 :root {
   /* Startup Core Palette - Deep Space Indigo to Neon Fuchsia */
-  --primary-color: #6366f1; /* Indigo */
-  --secondary-color: #a855f7; /* Purple */
-  --accent-color: #ec4899; /* Pink/Fuchsia */
+  --primary-color: #6366f1;
+  /* Indigo */
+  --secondary-color: #a855f7;
+  /* Purple */
+  --accent-color: #ec4899;
+  /* Pink/Fuchsia */
   --accent-glow: rgba(236, 72, 153, 0.4);
-  
+
   --success-color: #10b981;
   --warning-color: #f59e0b;
   --danger-color: #ef4444;
-  
+
   /* Text */
   --text-primary: #f8fafc;
   --text-secondary: #94a3b8;
-  
+
   /* Backgrounds: Dark & Deep */
   --bg-primary: #0f172a;
   --bg-secondary: rgba(30, 41, 59, 0.7);
   --bg-tertiary: #334155;
-  
+
   /* Borders & Glass */
   --border-color: rgba(255, 255, 255, 0.08);
   --glass-bg: rgba(15, 23, 42, 0.6);
   --glass-border: rgba(255, 255, 255, 0.1);
   --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-  
+
   /* Gradients */
   --gradient-primary: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
   --gradient-accent: linear-gradient(135deg, var(--secondary-color), var(--accent-color));
-  
+
   /* Advanced Variables */
   --font-startup: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --navbar-height: 76px;
@@ -46,12 +49,30 @@
 body {
   font-family: var(--font-startup);
   background: var(--bg-primary);
-  background-image: 
+  background-image:
     radial-gradient(circle at 15% 50%, rgba(99, 102, 241, 0.12) 0%, transparent 50%),
     radial-gradient(circle at 85% 30%, rgba(168, 85, 247, 0.12) 0%, transparent 50%);
   color: var(--text-primary);
   min-height: 100vh;
   overflow-x: hidden;
+}
+
+:where(a, button, input, textarea, select, [role='button']):focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 4px rgba(236, 72, 153, 0.18);
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 .app {
@@ -85,7 +106,7 @@ body {
 
 .card-3d:hover {
   transform: translateY(-8px) scale(1.02);
-  box-shadow: 
+  box-shadow:
     0 20px 40px rgba(0, 0, 0, 0.4),
     0 8px 16px rgba(99, 102, 241, 0.2);
   border-color: rgba(99, 102, 241, 0.4);
@@ -197,31 +218,46 @@ body {
 }
 
 @keyframes loading-pulse {
-  0%, 100% { opacity: 0.5; }
-  50% { opacity: 1; }
+
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+
+  50% {
+    opacity: 1;
+  }
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* ===== Skeleton Loader Utility ===== */
 .skeleton {
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0.04) 25%,
-    rgba(255, 255, 255, 0.08) 50%,
-    rgba(255, 255, 255, 0.04) 75%
-  );
+  background: linear-gradient(90deg,
+      rgba(255, 255, 255, 0.04) 25%,
+      rgba(255, 255, 255, 0.08) 50%,
+      rgba(255, 255, 255, 0.04) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;
   border-radius: 12px;
 }
 
 @keyframes shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 .skeleton-text {
@@ -230,9 +266,17 @@ body {
   border-radius: 6px;
 }
 
-.skeleton-text.short { width: 40%; }
-.skeleton-text.medium { width: 65%; }
-.skeleton-text.long { width: 90%; }
+.skeleton-text.short {
+  width: 40%;
+}
+
+.skeleton-text.medium {
+  width: 65%;
+}
+
+.skeleton-text.long {
+  width: 90%;
+}
 
 .skeleton-card {
   height: 120px;
@@ -244,17 +288,41 @@ body {
   border-radius: 20px;
 }
 
+.app-error-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 2rem;
+  background: var(--bg-primary);
+}
+
+.app-error-card {
+  max-width: 520px;
+  width: 100%;
+  text-align: center;
+  display: grid;
+  gap: 1rem;
+  justify-items: center;
+}
+
+.app-error-icon {
+  color: #f59e0b;
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
 }
+
 ::-webkit-scrollbar-track {
   background: var(--bg-primary);
 }
+
 ::-webkit-scrollbar-thumb {
   background: var(--bg-tertiary);
   border-radius: 10px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: var(--secondary-color);
 }

@@ -9,10 +9,12 @@ import {
   Trash2,
   Save,
   X,
+  Heart,
   Sparkles
 } from 'lucide-react'
 import { format } from 'date-fns'
 import { apiRequest } from '../../lib/api'
+import { MOOD_OPTIONS } from '../../lib/moods'
 import './Journal.css'
 
 const emptyEntry = { title: '', content: '', mood: 5, tags: [] }
@@ -33,19 +35,7 @@ export default function Journal() {
   const [editingEntryId, setEditingEntryId] = useState(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedMood, setSelectedMood] = useState(null)
-
-  const moods = [
-    { value: 1, emoji: '😭', label: 'Very Sad' },
-    { value: 2, emoji: '😢', label: 'Sad' },
-    { value: 3, emoji: '😕', label: 'Down' },
-    { value: 4, emoji: '😐', label: 'Neutral' },
-    { value: 5, emoji: '🙂', label: 'Okay' },
-    { value: 6, emoji: '😊', label: 'Good' },
-    { value: 7, emoji: '😄', label: 'Happy' },
-    { value: 8, emoji: '😆', label: 'Very Happy' },
-    { value: 9, emoji: '🤩', label: 'Ecstatic' },
-    { value: 10, emoji: '🥰', label: 'Blissful' }
-  ]
+  const [showDashboard, setShowDashboard] = useState(false)
 
   useEffect(() => {
     const fetchEntries = async () => {
@@ -61,6 +51,58 @@ export default function Journal() {
 
     fetchEntries()
   }, [])
+
+  const ReflectionDashboard = () => {
+    const avgMood = entries.length > 0
+      ? (entries.reduce((sum, e) => sum + e.mood, 0) / entries.length).toFixed(1)
+      : 0
+
+    return (
+      <motion.div
+        className="reflection-dashboard glass card-3d"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+      >
+        <div className="dashboard-grid">
+          <div className="dashboard-stat">
+            <span className="stat-label">Average Mood</span>
+            <div className="stat-value-row">
+              <Heart className="stat-icon" fill="#ec4899" color="#ec4899" />
+              <span className="stat-value">{avgMood}/10</span>
+            </div>
+            <p className="stat-desc">Your baseline emotional state</p>
+          </div>
+
+          <div className="dashboard-summary">
+            <div className="summary-header">
+              <Sparkles size={18} className="sparkle-icon" />
+              <span>AI Perspective</span>
+            </div>
+            <p className="summary-text">
+              {entries.length > 3
+                ? "You've been consistent with your reflections. Your entries suggest a focus on personal growth and resilience."
+                : "Start writing more to unlock deeper emotional pattern recognition and personalized AI insights."}
+            </p>
+          </div>
+
+          <div className="dashboard-trends">
+            <span className="stat-label">Weekly Activity</span>
+            <div className="trend-dots">
+              {[...Array(7)].map((_, i) => {
+                const day = new Date()
+                day.setDate(day.getDate() - (6 - i))
+                const hasEntry = entries.some(e => new Date(e.createdAt).toDateString() === day.toDateString())
+                return (
+                  <div key={i} className={`trend-dot ${hasEntry ? 'active' : ''}`} title={day.toDateString()} />
+                )
+              })}
+            </div>
+            <p className="stat-desc">Your 7-day journaling streak</p>
+          </div>
+        </div>
+      </motion.div>
+    )
+  }
 
   const openNewEntry = (promptText) => {
     setCurrentEntry({
@@ -153,16 +195,28 @@ export default function Journal() {
             <p>Write your thoughts, reflect on your day, and track your emotional journey</p>
           </div>
 
-          <motion.button
-            className="btn btn-primary new-entry-btn"
-            onClick={() => openNewEntry('')}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <Plus size={20} />
-            New Entry
-          </motion.button>
+          <div className="header-actions">
+            <button
+              className={`btn btn-secondary dashboard-toggle ${showDashboard ? 'active' : ''}`}
+              onClick={() => setShowDashboard(!showDashboard)}
+            >
+              {showDashboard ? 'Hide Insights' : 'Show Insights'}
+            </button>
+            <motion.button
+              className="btn btn-primary new-entry-btn"
+              onClick={() => openNewEntry('')}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Plus size={20} />
+              New Entry
+            </motion.button>
+          </div>
         </motion.div>
+
+        <AnimatePresence>
+          {showDashboard && <ReflectionDashboard />}
+        </AnimatePresence>
 
         <motion.div
           className="journal-controls card-3d"
@@ -192,7 +246,7 @@ export default function Journal() {
               >
                 All
               </button>
-              {moods.slice(0, 5).map((mood) => (
+              {MOOD_OPTIONS.slice(0, 5).map((mood) => (
                 <button
                   key={mood.value}
                   className={`mood-filter-btn ${selectedMood === mood.value ? 'active' : ''}`}
@@ -224,8 +278,10 @@ export default function Journal() {
                 <div className="modal-header">
                   <h2>{editingEntryId ? 'Edit Journal Entry' : 'New Journal Entry'}</h2>
                   <button
+                    type="button"
                     className="close-btn"
                     onClick={closeEditor}
+                    aria-label="Close journal editor"
                   >
                     <X size={20} />
                   </button>
@@ -248,11 +304,13 @@ export default function Journal() {
                   <div className="mood-selector">
                     <label>How are you feeling?</label>
                     <div className="mood-options">
-                      {moods.map((mood) => (
+                      {MOOD_OPTIONS.map((mood) => (
                         <button
+                          type="button"
                           key={mood.value}
                           className={`mood-option ${currentEntry.mood === mood.value ? 'selected' : ''}`}
                           onClick={() => setCurrentEntry((previous) => ({ ...previous, mood: mood.value }))}
+                          aria-pressed={currentEntry.mood === mood.value}
                         >
                           <span className="mood-emoji">{mood.emoji}</span>
                           <span className="mood-label">{mood.label}</span>
@@ -272,12 +330,14 @@ export default function Journal() {
 
                 <div className="modal-actions">
                   <button
+                    type="button"
                     className="btn btn-secondary"
                     onClick={closeEditor}
                   >
                     Cancel
                   </button>
                   <button
+                    type="button"
                     className="btn btn-primary"
                     onClick={handleSaveEntry}
                     disabled={!currentEntry.title.trim() || !currentEntry.content.trim()}
@@ -311,7 +371,7 @@ export default function Journal() {
                       {format(new Date(entry.createdAt), 'MMM dd, yyyy')}
                     </span>
                     <span className="entry-mood">
-                      {moods.find((mood) => mood.value === entry.mood)?.emoji}
+                      {MOOD_OPTIONS.find((mood) => mood.value === entry.mood)?.emoji}
                     </span>
                   </div>
                 </div>
@@ -324,12 +384,14 @@ export default function Journal() {
                   <button
                     className="action-btn edit-btn"
                     onClick={() => openEditEntry(entry)}
+                    aria-label={`Edit ${entry.title}`}
                   >
                     <Edit3 size={16} />
                   </button>
                   <button
                     className="action-btn delete-btn"
                     onClick={() => handleDeleteEntry(entry._id)}
+                    aria-label={`Delete ${entry.title}`}
                   >
                     <Trash2 size={16} />
                   </button>

@@ -14,6 +14,7 @@ import {
 } from 'chart.js'
 import { Bar, Line } from 'react-chartjs-2'
 import { apiRequest } from '../../lib/api'
+import { getMoodColor, getMoodEmoji, getMoodScore } from '../../lib/moods'
 import './MoodTracker.css'
 
 ChartJS.register(
@@ -26,34 +27,6 @@ ChartJS.register(
   Legend,
   BarElement
 )
-
-const moodEmojiMap = {
-  'Very Positive': '\u{1F60A}',
-  Positive: '\u{1F642}',
-  Neutral: '\u{1F610}',
-  Negative: '\u{1F641}',
-  'Very Negative': '\u{1F622}'
-}
-
-const moodColorMap = {
-  'Very Positive': '#10b981',
-  Positive: '#3b82f6',
-  Neutral: '#6b7280',
-  Negative: '#f59e0b',
-  'Very Negative': '#ef4444'
-}
-
-const moodScoreMap = {
-  'Very Positive': 5,
-  Positive: 4,
-  Neutral: 3,
-  Negative: 2,
-  'Very Negative': 1
-}
-
-const getMoodEmoji = (mood) => moodEmojiMap[mood] || moodEmojiMap.Neutral
-const getMoodColor = (mood) => moodColorMap[mood] || moodColorMap.Neutral
-const getMoodScore = (mood) => moodScoreMap[mood] || moodScoreMap.Neutral
 
 function getFilteredMoodHistory(moodHistory, timeRange) {
   const sortedHistory = [...moodHistory].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
@@ -151,7 +124,8 @@ const lineChartOptions = {
       callbacks: {
         label(context) {
           const moodScore = context.parsed.y
-          const moodLabel = Object.keys(moodScoreMap).find((mood) => moodScoreMap[mood] === moodScore) || 'Neutral'
+          const moodLabel = ['Very Positive', 'Positive', 'Neutral', 'Negative', 'Very Negative']
+            .find((mood) => getMoodScore(mood) === moodScore) || 'Neutral'
           return `Mood: ${moodLabel}`
         }
       }
@@ -164,7 +138,8 @@ const lineChartOptions = {
       ticks: {
         stepSize: 1,
         callback(value) {
-          const moodLabel = Object.keys(moodScoreMap).find((mood) => moodScoreMap[mood] === value) || 'Neutral'
+          const moodLabel = ['Very Positive', 'Positive', 'Neutral', 'Negative', 'Very Negative']
+            .find((mood) => getMoodScore(mood) === value) || 'Neutral'
           return getMoodEmoji(moodLabel)
         }
       }
